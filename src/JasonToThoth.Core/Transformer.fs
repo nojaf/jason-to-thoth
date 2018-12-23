@@ -97,7 +97,7 @@ module Transformer =
           |> List.map (fun prop -> parseDecoderOfType prop.Name prop.Type)
           |> String.concat (sprintf "%s                    " newLine)
           
-        sprintf """static member Decoder : Decode.Decoder<%s> =
+        sprintf """static member Decoder : Decoder<%s> =
           Decode.object
                 (fun get ->
                   { %s }
@@ -113,3 +113,4 @@ module Transformer =
         |> List.choose id
         |> List.map (fun (n,f,_) -> parseType n f)
         |> String.concat (twoNewlines)
+        |> sprintf "open System%sopen Thoth.Json%s%s" newLine twoNewlines

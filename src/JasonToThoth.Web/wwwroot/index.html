@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Jason to Thoth</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="icon" href="favicon.ico?v=1" type="image/icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css">
+    <style>
+        .mh440, .mh440.textarea {
+            min-height: 440px;  
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar is-dark" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="https://bulma.io">
+            <strong>Jason 2 Thoth</strong>
+        </a>
+    </div>
+</nav>
+<div class="columns is-gapless">
+    <div class="column">
+        <textarea class="textarea mh440" placeholder="Paste some JSON and hope for the best."></textarea>
+    </div>
+    <div class="column">
+        <div class="notification mh440">
+            <pre></pre>
+        </div>
+    </div>
+</div>
+<div class="columns is-gapless">
+    <div class="column has-text-centered">
+        <button class="button is-primary">Transform</button>
+    </div>
+</div>
+<script>
+    addEventListener("load", () => {
+        const btn = document.querySelector("button");
+        const txt = document.querySelector("textarea");
+        const code = document.querySelector("pre");
+        
+        function fetchSourceCode(json){
+            return fetch("/api/transform",{
+                body:json,
+                method: "POST"
+            }).then(response => {
+                return response.text();
+            });
+        }
+        
+        btn.addEventListener("click", () => {
+            const json = txt.value;
+            fetchSourceCode(json).then(sourceCode => {
+                code.textContent = sourceCode;
+            })
+        });
+    });
+</script>
+</body>
+</html>
