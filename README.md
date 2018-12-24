@@ -1,8 +1,10 @@
-# Jason to Thoth
+# JSON to Thoth
 
 > Convert a JSON snippet to a F# record with a Thoth decode function.
 
 ![Red Hood](logo.png)
+
+Check it out [online](https://nojaf.com/redhood/)
 
 ## Development
 
