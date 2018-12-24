@@ -7,7 +7,9 @@
     <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="wwwroot/*" />
+    <Content Include="wwwroot/*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Compile Include="Api.fs" />
     <Compile Include="KestrelInterop.fs" />
     <Compile Include="Program.fs" />
