@@ -111,6 +111,7 @@ module Transformer =
         |> collectAllRecords
         |> List.map (function | (IRecord r) -> Some r | _ -> None)
         |> List.choose id
+        |> List.rev
         |> List.map (fun (n,f,_) -> parseType n f)
         |> String.concat (twoNewlines)
         |> sprintf "open System%sopen Thoth.Json%s%s" newLine twoNewlines

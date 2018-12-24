@@ -19,7 +19,7 @@ let expectEqualString a b =
 let ``Simple structure with primitives`` () =
     let source =
         """
-        {"Id":7,"Name":"Het Waterhuis aan de Bierkant","Lat":51.056415557861328,"Lng":3.7224469184875488}
+        {"Id":7,"Name":"Foobar","Lat":51.056415557861328,"Lng":3.7224469184875488}
         """
 
     parse source
@@ -41,4 +41,53 @@ type Root =
                     Name = get.Required.Field "Name" Decode.string
                     Lat = get.Required.Field "Lat" Decode.decimal
                     Lng = get.Required.Field "Lng" Decode.decimal }
+                )"""
+
+[<Fact>]
+let ``Nested structure`` () =
+    let source = """
+{
+  "data" : {
+   "location": {"Id":7,"Name":"Foobar","Lat":51.056415557861328,"Lng":3.7224469184875488}
+  }
+}
+"""
+
+    parse source
+    |> appendNewline
+    |> expectEqualString """
+open System
+open Thoth.Json
+
+type Location =
+    { Id: Int32
+      Name: String
+      Lat: Decimal
+      Lng: Decimal }
+
+    static member Decoder : Decoder<Location> =
+          Decode.object
+                (fun get ->
+                  { Id = get.Required.Field "Id" Decode.int
+                    Name = get.Required.Field "Name" Decode.string
+                    Lat = get.Required.Field "Lat" Decode.decimal
+                    Lng = get.Required.Field "Lng" Decode.decimal }
+                )
+
+type Data =
+    { Location: Location }
+
+    static member Decoder : Decoder<Data> =
+          Decode.object
+                (fun get ->
+                  { Location = get.Required.Field "location" Location.Decoder }
+                )
+
+type Root =
+    { Data: Data }
+
+    static member Decoder : Decoder<Root> =
+          Decode.object
+                (fun get ->
+                  { Data = get.Required.Field "data" Data.Decoder }
                 )"""
