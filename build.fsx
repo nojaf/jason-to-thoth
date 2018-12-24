@@ -13,6 +13,7 @@ open System.IO
 
 let sln = Path.Combine(__SOURCE_DIRECTORY__, "jason-to-thoth.sln")
 let web = Path.Combine(__SOURCE_DIRECTORY__, "src", "JasonToThoth.Web" , "JasonToThoth.Web.fsproj")
+let tests = Path.Combine(__SOURCE_DIRECTORY__, "tests", "JasonToThoth.Tests", "JasonToThoth.Tests.fsproj")
 let artifacts = Path.Combine(__SOURCE_DIRECTORY__, "artifacts")
 
 // Default target
@@ -39,6 +40,14 @@ Target.create "Build" (fun _ ->
                                        Common = { opt.Common with CustomParams = Some "--no-restore" } }) sln
 )
 
+Target.create "Tests" (fun _ ->
+    DotNet.test (fun opt -> { opt with
+                                  NoBuild = true
+                                  NoRestore = true
+                                  Configuration = DotNet.BuildConfiguration.Release
+                                  }) tests
+)
+
 Target.create "Pack" (fun _ ->
     DotNet.publish (fun opt -> { opt with NoBuild = true; OutputPath = Some artifacts }) web
 )
@@ -48,6 +57,7 @@ Target.create "Pack" (fun _ ->
 "Clean"
     ==> "Restore"
     ==> "Build"
+    ==> "Tests"
     ==> "Pack"
 
 // start build
