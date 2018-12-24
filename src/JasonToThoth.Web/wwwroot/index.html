@@ -3,7 +3,7 @@
 <head>
     <title>Jason to Thoth</title>
     <meta name="viewport" content="initial-scale=1, maximum-scale=1">
-    <link rel="icon" href="favicon.ico?v=1" type="image/icon">
+    <link rel="icon" href="favicon.ico?v=2" type="image/icon">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css">
     <style>
         .mh440, .mh440.textarea {
@@ -41,7 +41,8 @@
         const code = document.querySelector("pre");
         
         function fetchSourceCode(json){
-            return fetch("/api/transform",{
+            const url = `${location.pathname}api/transform`;
+            return fetch(url,{
                 body:json,
                 method: "POST"
             }).then(response => {
