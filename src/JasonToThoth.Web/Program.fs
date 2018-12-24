@@ -8,11 +8,12 @@ open KestrelInterop.ApplicationBuilder
 open System.IO
 
 let clientPath = "wwwroot"
-let port = 5000
 
 let configureApp (app : IApplicationBuilder) =
     app.UseFileServer() |> ignore
     app.UseFreya (Api.root) |> ignore
+    
+// Set urls by changing ASPNETCORE_URLS environment variable.
 
 [<EntryPoint>]
 let main argv =
@@ -30,7 +31,6 @@ let main argv =
             .UseWebRoot(clientPath)
             .UseContentRoot(clientPath)
             .Configure(Action<IApplicationBuilder> (configureApp))
-            .UseUrls("http://0.0.0.0:" + port.ToString() + "/")
             .Build()
             .Run()
         0
