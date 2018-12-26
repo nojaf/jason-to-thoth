@@ -9,7 +9,4 @@ install:
 build_script:
   - cmd: .\.fake\fake.exe run build.fsx -t Tests
 cache:
-  - .fake -> build.fsx
-  - .paket -> paket.dependencies
-  - paket-files -> paket.dependencies
   - '%USERPROFILE%\.nuget\packages -> paket.dependencies'
