@@ -116,3 +116,21 @@ type Root =
                   { A = get.Required.Field "a" Decode.datetimeOffset
                     B = get.Required.Field "b" Decode.datetime }
                 )"""
+
+[<Fact>]
+let ``preserve propertyCasing`` () =
+    let source = "{\"npmPackages\": [\"foo\",\"bar\"]}"
+    parse source
+    |> appendNewline
+    |> expectEqualString """
+open System
+open Thoth.Json
+
+type Root =
+    { NpmPackages: string array }
+
+    static member Decoder : Decoder<Root> =
+          Decode.object
+                (fun get ->
+                  { NpmPackages = get.Required.Field "npmPackages" Decode.array Decode.string }
+                )"""

@@ -1,10 +1,6 @@
 module JasonToThoth.Core.Helper
 
 open System
-open System.Globalization
-
-let private ti = (CultureInfo("en-US",false)).TextInfo
-let pascalCase input = ti.ToTitleCase(input)
 
 let newLine = Environment.NewLine
 let twoNewlines = sprintf "%s%s" newLine newLine
@@ -48,3 +44,7 @@ let toSimpleType (t:Type) =
   | t when (t = typedefof<single>) -> "single"
   | t when (t = typedefof<double>) -> "double"
   | _ -> t.Name
+
+/// Source: https://github.com/Humanizr/Humanizer/blob/2e45bca3d4bfc8c9ff651a32490c8e7676558f14/src/Humanizer/InflectorExtensions.cs#L71
+let pascalCase input =
+  System.Text.RegularExpressions.Regex.Replace(input, "(?:^|_)(.)", fun (m: System.Text.RegularExpressions.Match) -> m.Groups.[1].Value.ToUpper());
