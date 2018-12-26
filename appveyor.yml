@@ -2,11 +2,14 @@ version: '1.0.{build}'
 image: Visual Studio 2017
 branches:
   only:
-    - master
-init:
-  # Good practise, because Windows line endings are different from Unix/Linux ones
-  - cmd: git config --global core.autocrlf true
+    - master 
+install:
   - cmd: dotnet tool install --tool-path ".paket" Paket --add-source https://api.nuget.org/v3/index.json
   - cmd: dotnet tool install fake-cli --tool-path .fake
 build_script:
   - cmd: .\.fake\fake.exe run build.fsx -t Tests
+cache:
+  - .fake -> build.fsx
+  - .paket -> paket.dependencies
+  - .paket-files -> paket.dependencies
+  - '%USERPROFILE%\.nuget\packages -> paket.dependencies

@@ -1,8 +1,12 @@
 ﻿module Tests
 
+open System
 open JasonToThoth.Core.Helper
 open Xunit
 open JasonToThoth.Core.Transformer
+open System.Text.RegularExpressions
+
+let normalizeEndings originalString = Regex.Replace(originalString, @"\r\n|\n\r|\n|\r", Environment.NewLine);
 
 let appendNewline input =
     sprintf "%s%s" newLine input
@@ -12,7 +16,9 @@ let tap name x =
     x
 
 let expectEqualString a b =
-    Assert.Equal(a,b)
+    let a' = normalizeEndings a
+    let b' = normalizeEndings b
+    Assert.Equal(a',b')
 
 [<Fact>]
 let ``Simple structure with primitives`` () =
