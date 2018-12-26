@@ -3,8 +3,9 @@ image: Visual Studio 2017
 branches:
   only:
     - master
-install:
-  # Install repo specific stuff here
+init:
+  # Good practise, because Windows line endings are different from Unix/Linux ones
+  - cmd: git config --global core.autocrlf true
   - cmd: dotnet tool install --tool-path ".paket" Paket --add-source https://api.nuget.org/v3/index.json
   - cmd: dotnet tool install fake-cli --tool-path .fake
 build_script:
