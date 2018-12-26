@@ -33,7 +33,7 @@ module Transformer =
         let name = pascalCase prop.Name
         match prop.Type with
         | InferedType.Record(n, _, isOptional) -> (name, name)
-        | InferedType.Primitive(t,_,isOptional) -> (name, t.Name)
+        | InferedType.Primitive(t,_,isOptional) -> (name, toSimpleType t)
         | InferedType.Collection(order, types) ->
             order
             |> List.tryHead

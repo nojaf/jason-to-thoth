@@ -1,7 +1,6 @@
 ﻿module Tests
 
 open JasonToThoth.Core.Helper
-open System
 open Xunit
 open JasonToThoth.Core.Transformer
 
@@ -29,10 +28,10 @@ open System
 open Thoth.Json
 
 type Root =
-    { Id: Int32
-      Name: String
-      Lat: Decimal
-      Lng: Decimal }
+    { Id: int
+      Name: string
+      Lat: decimal
+      Lng: decimal }
 
     static member Decoder : Decoder<Root> =
           Decode.object
@@ -60,10 +59,10 @@ open System
 open Thoth.Json
 
 type Location =
-    { Id: Int32
-      Name: String
-      Lat: Decimal
-      Lng: Decimal }
+    { Id: int
+      Name: string
+      Lat: decimal
+      Lng: decimal }
 
     static member Decoder : Decoder<Location> =
           Decode.object
@@ -90,4 +89,24 @@ type Root =
           Decode.object
                 (fun get ->
                   { Data = get.Required.Field "data" Data.Decoder }
+                )"""
+                
+[<Fact>]
+let ``DateTime and DateTimeOffset`` () =
+    let source = "{\"a\":\"2018-12-26T15:04:22.730Z\", \"b\": \"2018-12-26T14:58\"}"
+    parse source
+    |> appendNewline
+    |> expectEqualString """
+open System
+open Thoth.Json
+
+type Root =
+    { A: DateTimeOffset
+      B: DateTime }
+
+    static member Decoder : Decoder<Root> =
+          Decode.object
+                (fun get ->
+                  { A = get.Required.Field "a" Decode.datetimeOffset
+                    B = get.Required.Field "b" Decode.datetime }
                 )"""
