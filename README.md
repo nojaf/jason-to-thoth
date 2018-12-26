@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/43mi818ibynydpsw/branch/master?svg=true)](https://ci.appveyor.com/project/nojaf/jason-to-thoth/branch/master)
+
 # JSON to Thoth
 
 > Convert a JSON snippet to a F# record with a Thoth decode function.
