@@ -9,4 +9,4 @@ install:
   - cmd: dotnet tool install fake-cli --tool-path .fake
 build_script:
   - cmd: ls .fake
-  - cmd: ".fake/fake.exe" run build.fsx -t Tests
+  - cmd: .fake/fake.exe run build.fsx -t Tests
