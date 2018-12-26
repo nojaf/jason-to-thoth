@@ -12,4 +12,4 @@ cache:
   - .fake -> build.fsx
   - .paket -> paket.dependencies
   - .paket-files -> paket.dependencies
-  - %USERPROFILE%\.nuget\packages -> paket.dependencies
+  - '%%USERPROFILE%%\.nuget\packages -> paket.dependencies'
