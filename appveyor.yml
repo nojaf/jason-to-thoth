@@ -4,8 +4,8 @@ branches:
   only:
     - master 
 install:
-  - cmd: if not exist ".paket/" dotnet tool install --tool-path ".paket" Paket --add-source https://api.nuget.org/v3/index.json
-  - cmd: if not exist ".fake/" dotnet tool install fake-cli --tool-path .fake
+  - cmd: dotnet tool install --tool-path ".paket" Paket --add-source https://api.nuget.org/v3/index.json
+  - cmd: dotnet tool install fake-cli --tool-path .fake
 build_script:
   - cmd: .\.fake\fake.exe run build.fsx -t Tests
 cache:
