@@ -11,5 +11,5 @@ build_script:
 cache:
   - .fake -> build.fsx
   - .paket -> paket.dependencies
-  - .paket-files -> paket.dependencies
-  - '%%USERPROFILE%%\.nuget\packages -> paket.dependencies'
+  - paket-files -> paket.dependencies
+  - '%USERPROFILE%\.nuget\packages -> paket.dependencies'
