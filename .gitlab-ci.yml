@@ -10,7 +10,8 @@ stages:
 
 build code:
   stage: build
-  image: promact/docker-dotnet-nodejs
+  image: vbfox/fable-build
+
   script:
     - dotnet tool install --tool-path ".paket" Paket --add-source https://api.nuget.org/v3/index.json
     - dotnet tool install fake-cli --tool-path .fake
