@@ -4,15 +4,9 @@
     <title>JSON to Thoth</title>
     <meta name="viewport" content="initial-scale=1, maximum-scale=1">
     <link rel="icon" href="favicon.ico?v=2" type="image/icon">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/solid.css" integrity="sha384-+0VIRx+yz1WBcCTXBkVQYIBVNEFH1eP6Zknm16roZCyeNg2maWEpk/l/KsyFKs7G" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/brands.css" integrity="sha384-1KLgFVb/gHrlDGLFPgMbeedi6tQBLcWvyNUN+YKXbD7ZFbjX6BLpMDf0PJ32XJfX" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/fontawesome.css" integrity="sha384-jLuaxTTBR42U2qJ/pm4JRouHkEDHkVqH0T1nyQXn1mZ7Snycpf6Rl25VBNthU4z0" crossorigin="anonymous">
-    <style>
-        .mh440, .mh440.textarea {
-            min-height: 440px;  
-        }
-    </style>
 </head>
 <body>
 <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
@@ -35,44 +29,6 @@
         </div>
     </div>
 </nav>
-<div class="columns is-gapless">
-    <div class="column">
-        <textarea class="textarea mh440" placeholder="Paste some JSON and hope for the best."></textarea>
-    </div>
-    <div class="column">
-        <div class="notification mh440">
-            <pre></pre>
-        </div>
-    </div>
-</div>
-<div class="columns is-gapless">
-    <div class="column has-text-centered">
-        <button class="button is-primary">Transform</button>
-    </div>
-</div>
-<script>
-    addEventListener("load", () => {
-        const btn = document.querySelector("button");
-        const txt = document.querySelector("textarea");
-        const code = document.querySelector("pre");
-        
-        function fetchSourceCode(json){
-            const url = `${location.pathname}api/transform`;
-            return fetch(url,{
-                body:json,
-                method: "POST"
-            }).then(response => {
-                return response.text();
-            });
-        }
-        
-        btn.addEventListener("click", () => {
-            const json = txt.value;
-            fetchSourceCode(json).then(sourceCode => {
-                code.textContent = sourceCode;
-            })
-        });
-    });
-</script>
+<div id="elmish-app"></div>
 </body>
 </html>

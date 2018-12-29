@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- FS0025: Incomplete pattern matches on this expression. -->
+    <WarningsAsErrors>25</WarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\..\paket-files\client\fable-compiler\repl2\src\App\Monaco.fs">
+      <Paket>True</Paket>
+      <Link>paket-files/Monaco.fs</Link>
+    </Compile>
+    <Compile Include="Types.fs" />
+    <Compile Include="State.fs" />
+    <Compile Include="Views.fs" />
+    <Compile Include="App.fs" />
+  </ItemGroup>
+  <Import Project="..\..\..\.paket\Paket.Restore.targets" />
+</Project>

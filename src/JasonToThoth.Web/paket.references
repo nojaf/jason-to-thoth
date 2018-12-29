@@ -1,6 +1,7 @@
-Freya
-Microsoft.AspNetCore.StaticFiles
-Microsoft.AspNetCore
-Microsoft.AspNetCore.Owin
-Microsoft.AspNetCore.Server.Kestrel
-Fable.JsonConverter
+group Server
+    Freya
+    Microsoft.AspNetCore.StaticFiles
+    Microsoft.AspNetCore
+    Microsoft.AspNetCore.Owin
+    Microsoft.AspNetCore.Server.Kestrel
+    Fable.JsonConverter

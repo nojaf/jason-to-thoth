@@ -1,3 +1,4 @@
-FSharp.Data
-FSharp.Core
-File: JsonInference.fs
+group Server
+    FSharp.Data
+    FSharp.Core
+    File: JsonInference.fs

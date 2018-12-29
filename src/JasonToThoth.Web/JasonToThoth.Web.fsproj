@@ -7,6 +7,7 @@
     <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="webpack.config.js" />
     <Content Include="wwwroot/*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -19,6 +20,21 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\JasonToThoth.Core\JasonToThoth.Core.fsproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="styles\main.sass" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="public\favicon.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="public\index.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="public\logo-256.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Folder Include="wwwroot" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

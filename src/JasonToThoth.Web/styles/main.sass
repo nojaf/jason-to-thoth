@@ -1,0 +1,33 @@
+$primary: #C1011F
+
+@import "./../node_modules/bulma/sass/utilities/initial-variables"
+@import './../node_modules/bulma/bulma'
+
+#config-title
+  margin: 30px 0
+
+.page-content
+  height: calc(100vh - #{$navbar-height})
+
+  margin-top: 2 * $navbar-height
+
+@media (min-width: $widescreen)
+  .page-content
+    margin-top: $navbar-height
+
+// Overwrite, monaco style to make the code center compare to the Message box
+//.monaco-scrollable-element
+//    left: 5px !important
+
+#input-message
+  margin-right: 15px
+
+#formatted-message
+  margin-left: -15px
+
+.footer
+  padding: 1rem
+
+#options, #config-title
+  padding-left: 1rem
+  padding-right: 1rem
