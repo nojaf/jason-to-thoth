@@ -25,8 +25,8 @@ Target.create "Default" (fun _ ->
 )
 
 Target.create "Clean" (fun _ ->
-    !! "src/**/bin"
-    ++ "src/**/obj"
+    !! "src/JasonToThoth*/bin"
+    ++ "src/JasonToThoth*/obj"
     ++ "tests/**/bin"
     ++ "tests/**/obj"
     ++ artifacts
@@ -49,11 +49,6 @@ Target.create "Build" (fun _ ->
 
 Target.create "Watch" (fun _ ->
     let server = async {
-        let envs =
-             [("ASPNETCORE_ENVIRONMENT", "Development")
-              ("ASPNETCORE_URLS", "http://localhost:9700")]
-             |> Map.ofList
-        
         let cmd =
             Command.RawCommand("dotnet", Arguments.ofList ["watch"; "--project"; web; "run"])
             |> CreateProcess.fromCommand

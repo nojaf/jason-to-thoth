@@ -14,8 +14,10 @@ open Elmish.HMR
 Program.mkProgram State.init State.update Views.view
 #if DEBUG
 |> Program.withConsoleTrace
-#endif
 |> Program.withReact "elmish-app"
+#else
+|> Elmish.React.Program.withReact "elmish-app"
+#endif
 #if DEBUG
 |> Program.withDebugger
 |> Elmish.HMR.Program.run
