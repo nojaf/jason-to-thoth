@@ -10,7 +10,7 @@ stages:
 
 build code:
   stage: build
-  image: microsoft/dotnet:2.2-sdk
+  image: promact/docker-dotnet-nodejs
   script:
     - dotnet tool install --tool-path ".paket" Paket --add-source https://api.nuget.org/v3/index.json
     - dotnet tool install fake-cli --tool-path .fake
