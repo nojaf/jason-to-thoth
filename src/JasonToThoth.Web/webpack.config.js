@@ -12,6 +12,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+const EncodingPlugin = require('webpack-encoding-plugin');
 
 const CONFIG = {
     // The tags to include the generated JS and CSS will be automatically injected in the HTML template
@@ -105,6 +106,9 @@ var commonPlugins = [
             'wordHighlighter',
             'wordOperations'
         ]
+    }),
+    new EncodingPlugin({
+        encoding: 'UTF-16'
     })
 ];
 
