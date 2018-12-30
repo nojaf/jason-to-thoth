@@ -4,9 +4,15 @@ variables:
   MASTER_PORT: 9700
 
 stages:
+  - endings
   - build
   - create
 #  - deploy
+
+fix line endings:
+  stage: endings
+  script:
+    - find . -type f -print0 | xargs -0 dos2unix
 
 build code:
   stage: build
