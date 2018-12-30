@@ -13,8 +13,8 @@ fix line endings:
   stage: endings
   image: bash
   script:
-    - find /src -type f -print0 | xargs -0 dos2unix
-    - find /tests -type f -print0 | xargs -0 dos2unix
+    - find ./src -type f -print0 | xargs -0 dos2unix
+    - find ./tests -type f -print0 | xargs -0 dos2unix
     - dos2unix build.fsx
     - dos2unix build.fsx.lock
     - dos2unix jason-to-thoth.sln
