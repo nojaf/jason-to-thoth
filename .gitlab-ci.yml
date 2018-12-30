@@ -36,6 +36,8 @@ build code:
     expire_in: 1h
   only:
     - master
+  dependencies:
+    - fix line endings
 
 create container:
   stage: create
