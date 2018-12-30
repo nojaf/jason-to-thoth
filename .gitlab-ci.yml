@@ -4,26 +4,9 @@ variables:
   MASTER_PORT: 9700
 
 stages:
-  - endings
   - build
   - create
 #  - deploy
-
-fix line endings:
-  stage: endings
-  image: bash
-  script:
-    - find ./src -type f -print0 | xargs -0 dos2unix
-    - find ./tests -type f -print0 | xargs -0 dos2unix
-    - dos2unix build.fsx
-    - dos2unix build.fsx.lock
-    - dos2unix jason-to-thoth.sln
-    - dos2unix paket.dependencies
-    - dos2unix paket.lock
-  tags:
-    - docker
-  only:
-    - master
 
 build code:
   stage: build
@@ -42,8 +25,6 @@ build code:
     expire_in: 1h
   only:
     - master
-  dependencies:
-    - fix line endings
 
 create container:
   stage: create
