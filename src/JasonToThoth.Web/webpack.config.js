@@ -11,6 +11,7 @@ const webpack = require("webpack");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 const CONFIG = {
     // The tags to include the generated JS and CSS will be automatically injected in the HTML template
@@ -36,8 +37,12 @@ const CONFIG = {
                 // This adds polyfills when needed. Requires core-js dependency.
                 // See https://babeljs.io/docs/en/babel-preset-env#usebuiltins
                 "useBuiltIns": "usage",
-            }]
+            }],
+            "@babel/preset-react"
         ],
+        plugins: [
+            "@babel/plugin-proposal-class-properties"
+        ]
     }
 };
 
@@ -51,6 +56,55 @@ var commonPlugins = [
     new HtmlWebpackPlugin({
         filename: 'index.html',
         template: resolve(CONFIG.indexHtmlTemplate)
+    }),
+    new MonacoWebpackPlugin({
+        languages: [
+            "fsharp",
+            "javascript",
+            "typescript",
+            "json"
+        ],
+        features: [
+            'accessibilityHelp',
+            'bracketMatching',
+            'caretOperations',
+            'clipboard',
+            'codelens',
+            'colorDetector',
+            'comment',
+            //'contextmenu',
+            // 'coreCommands',
+            'cursorUndo',
+            // 'dnd',
+            'find',
+            // 'folding',
+            // 'format',
+            'gotoDeclarationCommands',
+            'gotoDeclarationMouse',
+            'gotoError',
+            'gotoLine',
+            'hover',
+            'inPlaceReplace',
+            'inspectTokens',
+            // 'iPadShowKeyboard',
+            'linesOperations',
+            'links',
+            'multicursor',
+            'parameterHints',
+            // 'quickCommand',
+            // 'quickFixCommands',
+            // 'quickOutline',
+            // 'referenceSearch',
+            // 'rename',
+            'smartSelect',
+            // 'snippets',
+            'suggest',
+            'toggleHighContrast',
+            'toggleTabFocusMode',
+            'transpose',
+            'wordHighlighter',
+            'wordOperations'
+        ]
     })
 ];
 

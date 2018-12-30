@@ -9,7 +9,7 @@ open Fable.Core.JsInterop
 
 let init _ =
     { Input = ""
-      Output = None
+      Output = ""
       RequestPending = false
       Error = None }, Cmd.none
     
@@ -27,4 +27,4 @@ let update msg model =
     | RequestFailed exn ->
         { model with Error = Some exn }, Cmd.none
     | TransformationResponse response ->
-        { model with Output = Some response }, Cmd.none
+        { model with Output = response }, Cmd.none

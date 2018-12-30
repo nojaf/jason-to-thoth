@@ -21,6 +21,12 @@ Install FAKE .NETCore
 Build with `.fake\fake.exe run build.fsx -t Build`.
 Or `.fake/fake run build.fsx -t Build` on Unix.
 
+Start watching with
+`.fake\fake.exe run build.fsx -t Watch`.
+Or `.fake/fake run build.fsx -t Watch` on Unix.
+
+Webpack runs on http://localhost:8080, the Freya server on http://localhost:9700.
+
 ## How to contribute
 
 Create a unit test in `JasonToThoth.Tests` where you illustrate what you want to fix.

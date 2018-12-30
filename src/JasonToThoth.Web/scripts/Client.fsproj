@@ -12,6 +12,7 @@
       <Paket>True</Paket>
       <Link>paket-files/Monaco.fs</Link>
     </Compile>
+    <Compile Include="ReactEditor.fs" />
     <Compile Include="Types.fs" />
     <Compile Include="State.fs" />
     <Compile Include="Views.fs" />

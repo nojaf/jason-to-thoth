@@ -8,6 +8,6 @@ type Msg =
 
 type Model =
     { Input: string
-      Output: string option
+      Output: string
       RequestPending: bool
       Error: exn option }

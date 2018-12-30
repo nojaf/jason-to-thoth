@@ -2,25 +2,39 @@ module App.Views
 
 open App.Types
 open Fable.Helpers.React
+open Fable.Helpers.React.Props
 open Fulma
+open ReactEditor
+
+let headers =
+    Columns.columns [ Columns.IsGapless ; Columns.IsMultiline ; Columns.CustomClass "is-gapless" ]
+                    [ Column.column [ Column.Width(Screen.All, Column.IsHalf) ]
+                        [ Message.message [ Message.Props [Id "input-message"] ]
+                            [ Message.body [ ]
+                                [ Text.div [ Modifiers [ Modifier.TextAlignment (Screen.All, TextAlignment.Centered) ] ]
+                                    [ str "Type or paste JSON" ] ] ] ]
+                      Column.column [ Column.Width(Screen.All, Column.IsHalf) ]
+                        [ Message.message [ Message.Props [Id "formatted-message"] ]
+                            [ Message.body [ ]
+                                [ Text.div [ Modifiers [ Modifier.TextAlignment (Screen.All, TextAlignment.Centered) ] ]
+                                    [ str "F# code with Thoth decoders." ] ] ] ] ]
+
 
 let view (model: Model) dispatch =
-    let output = Option.map (fun output -> pre [] [str output]) model.Output
-    
     div [] [
-        Columns.columns [Columns.IsGapless] [
+        headers
+        Columns.columns [Columns.IsGapless; Columns.IsMultiline ; Columns.CustomClass "is-gapless"] [
             Column.column [] [
-                Textarea.textarea [
-                    Textarea.CustomClass "mh440"
-                    Textarea.Placeholder "Paste some JSON and hope for the best."
-                    Textarea.Value model.Input
-                    Textarea.OnChange (fun ev -> dispatch (InputChanged ev.Value))
-                ] []
+                Editor.editor [ Editor.Language "json"
+                                Editor.IsReadOnly false
+                                Editor.Value model.Input
+                                Editor.OnChange (InputChanged >> dispatch) ]
             ]
             Column.column [] [
-                Notification.notification [Notification.CustomClass "mh440"] [
-                    ofOption output
-                ]
+                Editor.editor [ Editor.Language "fsharp"
+                                Editor.IsReadOnly false
+                                Editor.Value model.Output
+                                Editor.OnChange (InputChanged >> dispatch) ]
             ]
         ]
         Columns.columns [Columns.IsGapless] [
