@@ -11,8 +11,13 @@ stages:
 
 fix line endings:
   stage: endings
+  image: bash
   script:
     - find . -type f -print0 | xargs -0 dos2unix
+  tags:
+    - docker
+  only:
+    - master
 
 build code:
   stage: build
