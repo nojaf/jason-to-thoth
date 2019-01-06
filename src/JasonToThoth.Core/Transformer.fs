@@ -5,6 +5,7 @@ open FSharp.Data
 open FSharp.Data.Runtime.StructuralTypes
 open ProviderImplementation.JsonInference
 open JasonToThoth.Core.Helper
+open Newtonsoft.Json.Linq
 
 module Transformer =
     let private (|IRecord|_|) inferedType =
@@ -12,24 +13,36 @@ module Transformer =
       | InferedType.Record(n, p, o) as r -> Some (n, p, o)
       | _ -> None
     
-    let rec private collectAllRecords rootInferedType =
+    let rec private collectAllRecords (json:JToken) rootInferedType =
       match rootInferedType with
       | InferedType.Record (n,p,o) as r ->
+        
         let children =
           p
-          |> List.map (fun prop -> collectAllRecords prop.Type)
+          |> List.map (fun prop ->
+            let propJson = (json :?> JObject).Property(prop.Name).Value
+            collectAllRecords propJson prop.Type)
           |> List.collect id
           
-        r::children
+        (r, json)::children
         
       | InferedType.Collection(o, types) ->
         types
         |> Map.toList
-        |> List.collect (snd >> snd >> collectAllRecords)
+        |> List.collect (snd >> snd >> collectAllRecords json)
     
       | _ -> []
       
-    let private parseProperty (prop: InferedProperty) =
+    let propertyIsOfTypeString (parentJson: JToken) propName =
+      match parentJson with
+      | :? JObject as jo ->
+        jo.Property(propName)
+        |> Option.ofObj  
+        |> Option.map (fun jp -> jp.Value.Type = JTokenType.String)
+        |> Option.defaultValue false
+      | _ -> false
+      
+    let private parseProperty (parentJson:JToken) (prop: InferedProperty) =
         let name = pascalCase prop.Name
         match prop.Type with
         | InferedType.Record(n, _, isOptional) -> (name, name)
@@ -46,11 +59,12 @@ module Transformer =
             )
             |> Option.defaultValue (name, "obj array")
               
-                
+        | InferedType.Null when (propertyIsOfTypeString parentJson prop.Name) ->
+          (name, toSimpleType (typeof<string>))
         | _ -> ("not","supported")
         |> fun (k,v) -> sprintf "%s: %s" k v
         
-    let private parseDecoderOfType name (ifType: InferedType) =
+    let private parseDecoderOfType parentJson name (ifType: InferedType) =
       let propertyName = pascalCase name
       
       match ifType with
@@ -78,9 +92,12 @@ module Transformer =
           
         sprintf "%s = get.Required.Field \"%s\" %s" propertyName name decoder
         
+      | InferedType.Null when (propertyIsOfTypeString parentJson name) ->
+        sprintf "%s = get.Required.Field \"%s\" %s" propertyName name (toThothDecoder typeof<string>)
+        
       | _ -> "not supported"
       
-    let private parseType name fields =
+    let private parseType name fields (json: JToken) =
       let name =
         name
         |> Option.map pascalCase
@@ -88,13 +105,13 @@ module Transformer =
       
       let properties =
         fields
-        |> List.map parseProperty
+        |> List.map (parseProperty json)
         |> String.concat (sprintf "%s      " newLine)
         
       let decoder =
         let properties =
           fields
-          |> List.map (fun prop -> parseDecoderOfType prop.Name prop.Type)
+          |> List.map (fun prop -> parseDecoderOfType json prop.Name prop.Type)
           |> String.concat (sprintf "%s                    " newLine)
           
         sprintf """static member Decoder : Decoder<%s> =
@@ -106,12 +123,17 @@ module Transformer =
       sprintf "type %s =%s    { %s }%s    %s" name newLine properties twoNewlines decoder
      
     let parse json : string =
+        let jObject = JObject.Parse(json)
+
         JsonValue.Parse(json)
         |> inferType true (CultureInfo.InvariantCulture) "Root"
-        |> collectAllRecords
-        |> List.map (function | (IRecord r) -> Some r | _ -> None)
+        |> collectAllRecords jObject
+        |> List.map (fun (f,s) ->
+             (function | (IRecord r) -> Some r | _ -> None) f
+             |> Option.map (fun r -> (r,s))
+        )
         |> List.choose id
         |> List.rev
-        |> List.map (fun (n,f,_) -> parseType n f)
+        |> List.map (fun ((n,f,_), j) -> parseType n f j)
         |> String.concat (twoNewlines)
         |> sprintf "open System%sopen Thoth.Json%s%s" newLine twoNewlines

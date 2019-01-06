@@ -134,3 +134,21 @@ type Root =
                 (fun get ->
                   { NpmPackages = get.Required.Field "npmPackages" Decode.array Decode.string }
                 )"""
+
+[<Fact>]
+let ``empty string should parse`` () =
+    let source = "{ \"test\" : \"\" }"
+    parse source
+    |> appendNewline
+    |> expectEqualString """
+open System
+open Thoth.Json
+
+type Root =
+    { Test: string }
+
+    static member Decoder : Decoder<Root> =
+          Decode.object
+                (fun get ->
+                  { Test = get.Required.Field "test" Decode.string }
+                )"""

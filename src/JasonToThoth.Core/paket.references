@@ -1,4 +1,5 @@
 group Server
-    FSharp.Data
-    FSharp.Core
-    File: JsonInference.fs
+FSharp.Data
+FSharp.Core
+File:JsonInference.fs
+Newtonsoft.Json
