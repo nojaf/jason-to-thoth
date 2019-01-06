@@ -341,3 +341,5 @@ ASALocalRun/
 healthchecksdb
 .paket/.store
 wwwroot/
+
+reload.ps1
