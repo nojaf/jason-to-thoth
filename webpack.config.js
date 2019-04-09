@@ -20,7 +20,7 @@ const CONFIG = {
     indexHtmlTemplate: "./public/index.html",
     fsharpEntry: "./src/Client.fsproj",
     cssEntry: "./styles/main.sass",
-    outputDir: "./wwwroot",
+    outputDir: "./docs",
     assetsDir: "./public",
     devServerPort: 8080,
     // Use babel-preset-env to generate JS compatible with most-used browsers.
