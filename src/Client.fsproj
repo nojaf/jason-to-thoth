@@ -8,7 +8,7 @@
     <WarningsAsErrors>25</WarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\paket-files\client\fable-compiler\repl2\src\App\Monaco.fs">
+    <Compile Include="..\paket-files\client\fable-compiler\repl2\src\App\Monaco.fs">
       <Paket>True</Paket>
       <Link>paket-files/Monaco.fs</Link>
     </Compile>
@@ -18,5 +18,5 @@
     <Compile Include="Views.fs" />
     <Compile Include="App.fs" />
   </ItemGroup>
-  <Import Project="..\..\..\.paket\Paket.Restore.targets" />
+  <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

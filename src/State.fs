@@ -14,7 +14,7 @@ let init _ =
       Error = None }, Cmd.none
     
 let transform (input:string) =
-    let url = sprintf "%sapi/transform" Browser.location.pathname
+    let url = "https://nojaf-functions.azurewebsites.net/api/JsonToThoth"
     Fetch.fetch url [RequestProperties.Body (!^ input); RequestProperties.Method HttpMethod.POST]
     |> Promise.bind (fun res -> res.text())
 
