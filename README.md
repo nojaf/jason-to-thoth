@@ -10,24 +10,18 @@ Check it out [online](https://nojaf.com/redhood/)
 
 ## Development
 
-Install Paket .NETCore
+Install npm and .NET packages
 
-> dotnet tool install --tool-path ".paket" Paket --add-source https://api.nuget.org/v3/index.json
+> yarn
 
-Install FAKE .NETCore
+Build
 
-> dotnet tool install fake-cli --tool-path .fake
+> yarn build
 
-Build with `.fake\fake.exe run build.fsx -t Build`.
-Or `.fake/fake run build.fsx -t Build` on Unix.
+Develop
 
-Start watching with
-`.fake\fake.exe run build.fsx -t Watch`.
-Or `.fake/fake run build.fsx -t Watch` on Unix.
+> yarn webpack-dev-server
 
-Webpack runs on http://localhost:8080, the Freya server on http://localhost:9700.
+## API request
 
-## How to contribute
-
-Create a unit test in `JasonToThoth.Tests` where you illustrate what you want to fix.
-Open an issue first if you are not sure whether your change will be accepted.
+The code for the actual transformation from JSON to F# can be found in [nojaf-azure-functions](https://github.com/nojaf/nojaf-azure-functions).

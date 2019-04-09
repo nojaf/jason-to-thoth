@@ -41,7 +41,7 @@
     "postinstall": "node install.js",
     "prebuild": "rimraf wwwroot",
     "build": "webpack -p",
-    "predeploy": "yarn builld",
+    "predeploy": "yarn build",
     "deploy": "gh-pages -d wwwroot"
   }
 }
