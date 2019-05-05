@@ -46,8 +46,6 @@ Target.create "BuildServer" (fun _ ->
     DotNet.build (fun opts -> { opts with Configuration = DotNet.BuildConfiguration.Release }) testProject
 )
 
-Target.create "Build" ignore
-
 Target.create "Tests" (fun _ ->
     DotNet.test (fun opts -> { opts with NoRestore = true; NoBuild = true }) testProject
 )
@@ -84,7 +82,6 @@ Target.create "Watch" (fun _ ->
 "Clean"
     ==> "BuildClient"
     ==> "BuildServer"
-    ==> "Build"
     ==> "Tests"
     
 "Clean"
@@ -94,4 +91,4 @@ Target.create "Watch" (fun _ ->
 "BuildClient"
     ==> "DeployClient"
 
-Target.runOrDefault "Build"
+Target.runOrDefault "Tests"
