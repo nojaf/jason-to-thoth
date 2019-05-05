@@ -8,20 +8,17 @@
 
 Check it out [online](https://nojaf.com/redhood/)
 
+## Requirements
+
+- Azure functions v2 cli
+- Fake & Paket as global tools
+
 ## Development
-
-Install npm and .NET packages
-
-> yarn
 
 Build
 
-> yarn build
+> fake run build.fsx
 
 Develop
 
-> yarn webpack-dev-server
-
-## API request
-
-The code for the actual transformation from JSON to F# can be found in [nojaf-azure-functions](https://github.com/nojaf/nojaf-azure-functions).
+> fake run build.fsx -t Watch

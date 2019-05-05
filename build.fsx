@@ -13,10 +13,13 @@ open Fake.DotNet
 open Fake.Core.TargetOperators
 open Fake.IO.FileSystemOperators
 
+let sln = "jason-to-thoth.sln"
 let clientPath = Path.getFullName "./src/Client"
 let fableProject =  clientPath @@ "src" @@ "Client.fsproj"
 let serverPath = Path.getFullName "./src/Server"
 let functionProject = serverPath @@ "Nojaf.JasonToThoth" @@ "Nojaf.JasonToThoth.fsproj"
+let testPath = Path.getFullName "./tests"
+let testProject = testPath @@ "Nojaf.JasonToThoth.Tests" @@ "Nojaf.JasonToThoth.Tests.fsproj"
 let artifactsPath = Path.getFullName "./artifacts"
 
 Target.create "Id" (fun _ -> printfn "Installing Fake stuff")
@@ -25,9 +28,9 @@ Target.create "Clean" (fun _ ->
     Shell.cleanDirs [artifactsPath]
 )
 
-Target.create "InstallClient" (fun _ ->
+Target.create "Install" (fun _ ->
     Yarn.installPureLock (fun args -> { args with WorkingDirectory = clientPath })
-    DotNet.restore id fableProject
+    DotNet.restore id sln
 )
 
 Target.create "BuildClient" (fun _ ->
@@ -38,15 +41,16 @@ Target.create "DeployClient" (fun _ ->
     Yarn.exec "deploy" (fun args -> { args with WorkingDirectory = clientPath })
 )
 
-Target.create "InstallServer" (fun _ ->
-    DotNet.restore id functionProject
-)
-
 Target.create "BuildServer" (fun _ ->
     DotNet.build (fun opts -> { opts with Configuration = DotNet.BuildConfiguration.Release }) functionProject
+    DotNet.build (fun opts -> { opts with Configuration = DotNet.BuildConfiguration.Release }) testProject
 )
 
 Target.create "Build" ignore
+
+Target.create "Tests" (fun _ ->
+    DotNet.test (fun opts -> { opts with NoRestore = true; NoBuild = true }) testProject
+)
 
 Target.create "Watch" (fun _ ->
     let client =
@@ -74,17 +78,17 @@ Target.create "Watch" (fun _ ->
     |> Async.RunSynchronously
 )
 
-"InstallClient" ==> "BuildClient"
-"InstallServer" ==> "BuildServer"
+"Install" ==> "BuildClient"
+"Install" ==> "BuildServer"
 
 "Clean"
     ==> "BuildClient"
     ==> "BuildServer"
     ==> "Build"
+    ==> "Tests"
     
 "Clean"
-    ==> "InstallClient"
-    ==> "InstallServer"
+    ==> "Install"
     ==> "Watch"
     
 "BuildClient"
