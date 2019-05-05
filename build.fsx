@@ -47,7 +47,7 @@ Target.create "BuildServer" (fun _ ->
 )
 
 Target.create "Tests" (fun _ ->
-    DotNet.test (fun opts -> { opts with NoRestore = true; NoBuild = true }) testProject
+    DotNet.test (fun opts -> { opts with NoRestore = true; NoBuild = true; Configuration = DotNet.BuildConfiguration.Release }) testProject
 )
 
 Target.create "Watch" (fun _ ->
