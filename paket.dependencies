@@ -1,3 +1,4 @@
+version 5.203.2
 group Client
     storage: none
     source https://api.nuget.org/v3/index.json
@@ -9,6 +10,15 @@ group Client
     nuget Fable.Elmish.HMR
     nuget Fable.React
     nuget Fulma
-    nuget Fulma.Extensions
+    nuget Fable.Promise
+    nuget Fable.Fetch
 
-    github fable-compiler/repl2 src/App/Monaco.fs
+group Build
+    storage: none
+    source https://api.nuget.org/v3/index.json
+    framework: netstandard2.0
+    nuget FSharp.Core 4.3.4 // https://github.com/fsharp/FAKE/issues/2001
+    nuget Fake.Core.Target
+    nuget Fake.DotNet.Cli
+    nuget Fake.IO.FileSystem
+    nuget Fake.JavaScript.Yarn
