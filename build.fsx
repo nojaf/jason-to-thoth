@@ -86,5 +86,8 @@ Target.create "Watch" (fun _ ->
     ==> "InstallClient"
     ==> "InstallServer"
     ==> "Watch"
+    
+"BuildClient"
+    ==> "DeployClient"
 
 Target.runOrDefault "Build"
