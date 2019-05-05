@@ -38,6 +38,6 @@
   },
   "scripts": {
     "build": "webpack -p",
-    "deploy": "gh-pages ../../artifacts/Client"
+    "deploy": "gh-pages -d ../../artifacts/Client --remote github"
   }
 }

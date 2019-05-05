@@ -10,9 +10,15 @@ let init _ =
       Output = ""
       RequestPending = false
       Error = None }, Cmd.none
-    
+
+let private url =
+    #if DEBUG
+        "http://localhost:7071/api/JsonToThoth"
+    #else
+        "https://jason-to-thoth.azurewebsites.net/api/JsonToThoth"
+    #endif
+
 let transform (input:string) =
-    let url = "https://nojaf-functions.azurewebsites.net/api/JsonToThoth"
     Fetch.fetch url [RequestProperties.Body (!^ input); RequestProperties.Method HttpMethod.POST]
     |> Promise.bind (fun res -> res.text())
 

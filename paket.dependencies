@@ -22,3 +22,13 @@ group Build
     nuget Fake.DotNet.Cli
     nuget Fake.IO.FileSystem
     nuget Fake.JavaScript.Yarn
+
+group Server
+    storage: none
+    source https://api.nuget.org/v3/index.json
+    framework: netcoreapp2.1
+
+    nuget FSharp.Data
+    nuget Microsoft.NET.Sdk.Functions 1.0.24
+    nuget FSharp.Core 4.6.2
+    github fsharp/FSharp.Data /src/Json/JsonInference.fs
