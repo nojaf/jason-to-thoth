@@ -42,8 +42,8 @@ Target.create "DeployClient" (fun _ ->
 )
 
 Target.create "BuildServer" (fun _ ->
-    DotNet.build (fun opts -> { opts with Configuration = DotNet.BuildConfiguration.Release }) functionProject
-    DotNet.build (fun opts -> { opts with Configuration = DotNet.BuildConfiguration.Release }) testProject
+    DotNet.build (fun opts -> { opts with Configuration = DotNet.BuildConfiguration.Release; NoRestore = true }) functionProject
+    DotNet.build (fun opts -> { opts with Configuration = DotNet.BuildConfiguration.Release; NoRestore = true }) testProject
 )
 
 Target.create "Tests" (fun _ ->

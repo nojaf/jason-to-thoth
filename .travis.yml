@@ -11,4 +11,4 @@ before_install:
 jobs:
   include:
     - stage: "CI"
-      script: docker run -v "${PWD}:/app" -w "/app" nojaf/fable:2.3 bash -c "fake run build.fsx"
+      script: docker run --network=host -v "${PWD}:/app" -w "/app" nojaf/fable:2.3 bash -c "fake run build.fsx"
