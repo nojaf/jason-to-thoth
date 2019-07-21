@@ -20,8 +20,13 @@ module Transformer =
         let children =
           p
           |> List.map (fun prop ->
-            let propJson = (json :?> JObject).Property(prop.Name).Value
-            collectAllRecords propJson prop.Type)
+            match json with
+            | :? JObject as jo ->
+              let propJson = jo.Property(prop.Name).Value
+              collectAllRecords propJson prop.Type
+            | _ ->
+              []
+          )
           |> List.collect id
           
         (r, json)::children
@@ -87,7 +92,7 @@ module Transformer =
             | _ -> failwith "Not implemented yet"
           )
           |> Option.defaultValue "failWith"
-          |> sprintf "Decode.array %s"
+          |> sprintf "(Decode.array %s)"
           
           
         sprintf "%s = get.Required.Field \"%s\" %s" propertyName name decoder

@@ -147,3 +147,45 @@ type Root =
                 (fun get ->
                   { Test = get.Required.Field "test" Decode.string }
                 )"""
+
+[<Fact>]
+let ``array of objects`` () =
+    let source = """
+ {
+    "ronnies": [
+      {
+        "id": 1,
+        "name": "Afsnis"
+      },
+      {
+        "id": 2,
+        "name": "Het Spijker"
+      }
+    ]
+  }
+"""
+    parse source
+    |> appendNewline
+    |> expectEqualString """
+open System
+open Thoth.Json
+
+type Ronny =
+    { Id: int
+      Name: string }
+
+    static member Decoder : Decoder<Ronny> =
+          Decode.object
+                (fun get ->
+                  { Id = get.Required.Field "id" Decode.int
+                    Name = get.Required.Field "name" Decode.string }
+                )
+
+type Root =
+    { Ronnies: Ronny array }
+
+    static member Decoder : Decoder<Root> =
+          Decode.object
+                (fun get ->
+                  { Ronnies = get.Required.Field "ronnies" (Decode.array Ronny.Decoder) }
+                )"""
