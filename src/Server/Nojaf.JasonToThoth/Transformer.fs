@@ -10,12 +10,12 @@ open Newtonsoft.Json.Linq
 module Transformer =
     let private (|IRecord|_|) inferedType =
       match inferedType with
-      | InferedType.Record(n, p, o) as r -> Some (n, p, o)
+      | InferedType.Record(n, p, o) -> Some (n, p, o)
       | _ -> None
     
     let rec private collectAllRecords (json:JToken) rootInferedType =
       match rootInferedType with
-      | InferedType.Record (n,p,o) as r ->
+      | InferedType.Record (_,p,_) as r ->
         
         let children =
           p
@@ -31,7 +31,7 @@ module Transformer =
           
         (r, json)::children
         
-      | InferedType.Collection(o, types) ->
+      | InferedType.Collection(_, types) ->
         types
         |> Map.toList
         |> List.collect (snd >> snd >> collectAllRecords json)
@@ -50,9 +50,9 @@ module Transformer =
     let private parseProperty (parentJson:JToken) (prop: InferedProperty) =
         let name = pascalCase prop.Name
         match prop.Type with
-        | InferedType.Record(n, _, isOptional) -> (name, name)
-        | InferedType.Primitive(t,_,isOptional) -> (name, toSimpleType t)
-        | InferedType.Collection(order, types) ->
+        | InferedType.Record(_, _, _) -> (name, name)
+        | InferedType.Primitive(t,_,_) -> (name, toSimpleType t)
+        | InferedType.Collection(order, _) ->
             order
             |> List.tryHead
             |> Option.map (fun pt ->
@@ -73,19 +73,19 @@ module Transformer =
       let propertyName = pascalCase name
       
       match ifType with
-      | InferedType.Record(n, _, isOptional) ->
+      | InferedType.Record(_, _, isOptional) ->
         let staticDecoder = sprintf "%s.Decoder" propertyName
         sprintf "%s = get.%s.Field \"%s\" %s" propertyName (optionalOrRequired isOptional) name staticDecoder
         
       | InferedType.Primitive(t,_, opt) ->
         sprintf "%s = get.%s.Field \"%s\" %s" propertyName (optionalOrRequired opt) name (toThothDecoder t)
         
-      | InferedType.Collection(o,types) ->
+      | InferedType.Collection(_,types) ->
         let decoder =
           types
           |> Map.toList
           |> List.tryHead
-          |> Option.map (fun (_, (mul, ifType)) ->
+          |> Option.map (fun (_, (_, ifType)) ->
             match ifType with
             | InferedType.Record(Some(n),_,_) -> sprintf "%s.Decoder" (pascalCase n)
             | InferedType.Primitive(t,_,_) -> toThothDecoder t
