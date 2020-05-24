@@ -6,7 +6,7 @@
 
 ![Red Hood](logo.png)
 
-Check it out [online](https://nojaf.com/redhood/)
+Check it out [online](https://nojaf.com/jason-to-thoth/)
 
 ## Requirements
 
