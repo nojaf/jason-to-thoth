@@ -1,12 +1,14 @@
 module Tests
 
+open NUnit.Framework
 open Nojaf.Functions.JsonToThoth.Helper
 open Nojaf.Functions.JsonToThoth.Transformer
 open System
 open System.Text.RegularExpressions
-open Xunit
 
-let normalizeEndings originalString = Regex.Replace(originalString, @"\r\n|\n\r|\n|\r", Environment.NewLine)
+let normalizeEndings originalString =
+    Regex.Replace(originalString, @"\r\n|\n\r|\n|\r", Environment.NewLine)
+
 let appendNewline input = sprintf "%s%s" newLine input
 
 let tap name x =
@@ -16,16 +18,21 @@ let tap name x =
 let expectEqualString a b =
     let a' = normalizeEndings a
     let b' = normalizeEndings b
-    Assert.Equal(a', b')
+    Assert.AreEqual(a', b')
 
-[<Fact>]
-let ``Simple structure with primitives``() =
-    let source = """
+[<Test>]
+let ``Simple structure with primitives`` () =
+    let source =
+        """
         {"Id":7,"Name":"Foobar","Lat":51.056415557861328,"Lng":3.7224469184875488}
         """
+
     parse source
     |> appendNewline
-    |> expectEqualString """
+    |> expectEqualString
+        """
+namespace rec Jason.Thoth
+
 open System
 open Thoth.Json
 
@@ -44,18 +51,21 @@ type Root =
                     Lng = get.Required.Field "Lng" Decode.decimal }
                 )"""
 
-[<Fact>]
-let ``Nested structure``() =
-    let source = """
+[<Test>]
+let ``Nested structure`` () =
+    let source =
+        """
 {
   "data" : {
    "location": {"Id":7,"Name":"Foobar","Lat":51.056415557861328,"Lng":3.7224469184875488}
   }
 }
 """
+
     parse source
     |> appendNewline
-    |> expectEqualString """
+    |> expectEqualString
+        """
 open System
 open Thoth.Json
 
@@ -92,12 +102,14 @@ type Root =
                   { Data = get.Required.Field "data" Data.Decoder }
                 )"""
 
-[<Fact>]
-let ``DateTime and DateTimeOffset``() =
+[<Test>]
+let ``DateTime and DateTimeOffset`` () =
     let source = "{\"a\":\"2018-12-26T15:04:22.730Z\", \"b\": \"2018-12-26T14:58\"}"
+
     parse source
     |> appendNewline
-    |> expectEqualString """
+    |> expectEqualString
+        """
 open System
 open Thoth.Json
 
@@ -112,12 +124,14 @@ type Root =
                     B = get.Required.Field "b" Decode.datetime }
                 )"""
 
-[<Fact>]
-let ``preserve propertyCasing``() =
+[<Test>]
+let ``preserve propertyCasing`` () =
     let source = "{\"npmPackages\": [\"foo\",\"bar\"]}"
+
     parse source
     |> appendNewline
-    |> expectEqualString """
+    |> expectEqualString
+        """
 open System
 open Thoth.Json
 
@@ -130,12 +144,14 @@ type Root =
                   { NpmPackages = get.Required.Field "npmPackages" Decode.array Decode.string }
                 )"""
 
-[<Fact>]
-let ``empty string should parse``() =
+[<Test>]
+let ``empty string should parse`` () =
     let source = "{ \"test\" : \"\" }"
+
     parse source
     |> appendNewline
-    |> expectEqualString """
+    |> expectEqualString
+        """
 open System
 open Thoth.Json
 
@@ -148,9 +164,10 @@ type Root =
                   { Test = get.Required.Field "test" Decode.string }
                 )"""
 
-[<Fact>]
+[<Test>]
 let ``array of objects`` () =
-    let source = """
+    let source =
+        """
  {
     "ronnies": [
       {
@@ -164,9 +181,11 @@ let ``array of objects`` () =
     ]
   }
 """
+
     parse source
     |> appendNewline
-    |> expectEqualString """
+    |> expectEqualString
+        """
 open System
 open Thoth.Json
 
