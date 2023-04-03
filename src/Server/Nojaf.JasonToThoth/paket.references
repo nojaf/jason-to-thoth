@@ -1,5 +1,0 @@
-group Server
-FSharp.Core
-Microsoft.NET.Sdk.Functions
-FSharp.Data
-File:JsonInference.fs

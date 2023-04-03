@@ -3,142 +3,193 @@ namespace Nojaf.Functions.JsonToThoth
 open System.Globalization
 open FSharp.Data
 open FSharp.Data.Runtime.StructuralTypes
+open Fabulous.AST
+open type Fabulous.AST.Ast
+open Fabulous.AST.Module
+open Fabulous.AST.ModuleBuilders
+open Fabulous.AST.Helpers
+open Fabulous.AST.AnonymousModule
+open Fantomas.Core
 open ProviderImplementation.JsonInference
+open FSharp.Compiler.Text
+open Fantomas.Core
+open Fantomas.Core.SyntaxOak
 open Nojaf.Functions.JsonToThoth.Helper
-open Newtonsoft.Json.Linq
 
 module Transformer =
-    let private (|IRecord|_|) inferedType =
-      match inferedType with
-      | InferedType.Record(n, p, o) -> Some (n, p, o)
-      | _ -> None
-    
-    let rec private collectAllRecords (json:JToken) rootInferedType =
-      match rootInferedType with
-      | InferedType.Record (_,p,_) as r ->
-        
-        let children =
-          p
-          |> List.map (fun prop ->
-            match json with
-            | :? JObject as jo ->
-              let propJson = jo.Property(prop.Name).Value
-              collectAllRecords propJson prop.Type
-            | _ ->
-              []
-          )
-          |> List.collect id
-          
-        (r, json)::children
-        
-      | InferedType.Collection(_, types) ->
-        types
-        |> Map.toList
-        |> List.collect (snd >> snd >> collectAllRecords json)
-    
-      | _ -> []
-      
-    let propertyIsOfTypeString (parentJson: JToken) propName =
-      match parentJson with
-      | :? JObject as jo ->
-        jo.Property(propName)
-        |> Option.ofObj  
-        |> Option.map (fun jp -> jp.Value.Type = JTokenType.String)
-        |> Option.defaultValue false
-      | _ -> false
-      
-    let private parseProperty (parentJson:JToken) (prop: InferedProperty) =
-        let name = pascalCase prop.Name
-        match prop.Type with
-        | InferedType.Record(_, _, _) -> (name, name)
-        | InferedType.Primitive(t,_,_) -> (name, toSimpleType t)
-        | InferedType.Collection(order, _) ->
-            order
-            |> List.tryHead
-            |> Option.map (fun pt ->
-              match pt with
-              | InferedTypeTag.Record(Some(n)) -> (name, pascalCase n |> sprintf "%s array")
-              | InferedTypeTag.Guid -> (name, "Guid array")
-              | InferedTypeTag.String -> (name, "string array")
-              | _ -> (name, "not supported array")
-            )
-            |> Option.defaultValue (name, "obj array")
-              
-        | InferedType.Null when (propertyIsOfTypeString parentJson prop.Name) ->
-          (name, toSimpleType (typeof<string>))
-        | _ -> ("not","supported")
-        |> fun (k,v) -> sprintf "%s: %s" k v
-        
-    let private parseDecoderOfType parentJson name (ifType: InferedType) =
-      let propertyName = pascalCase name
-      
-      match ifType with
-      | InferedType.Record(_, _, isOptional) ->
-        let staticDecoder = sprintf "%s.Decoder" propertyName
-        sprintf "%s = get.%s.Field \"%s\" %s" propertyName (optionalOrRequired isOptional) name staticDecoder
-        
-      | InferedType.Primitive(t,_, opt) ->
-        sprintf "%s = get.%s.Field \"%s\" %s" propertyName (optionalOrRequired opt) name (toThothDecoder t)
-        
-      | InferedType.Collection(_,types) ->
-        let decoder =
-          types
-          |> Map.toList
-          |> List.tryHead
-          |> Option.map (fun (_, (_, ifType)) ->
-            match ifType with
-            | InferedType.Record(Some(n),_,_) -> sprintf "%s.Decoder" (pascalCase n)
-            | InferedType.Primitive(t,_,_) -> toThothDecoder t
-            | _ -> failwith "Not implemented yet"
-          )
-          |> Option.defaultValue "failWith"
-          |> sprintf "(Decode.array %s)"
-          
-          
-        sprintf "%s = get.Required.Field \"%s\" %s" propertyName name decoder
-        
-      | InferedType.Null when (propertyIsOfTypeString parentJson name) ->
-        sprintf "%s = get.Required.Field \"%s\" %s" propertyName name (toThothDecoder typeof<string>)
-        
-      | _ -> "not supported"
-      
-    let private parseType name fields (json: JToken) =
-      let name =
-        name
-        |> Option.map pascalCase
-        |> Option.defaultValue "Root"
-      
-      let properties =
-        fields
-        |> List.map (parseProperty json)
-        |> String.concat (sprintf "%s      " newLine)
-        
-      let decoder =
-        let properties =
-          fields
-          |> List.map (fun prop -> parseDecoderOfType json prop.Name prop.Type)
-          |> String.concat (sprintf "%s                    " newLine)
-          
-        sprintf """static member Decoder : Decoder<%s> =
-          Decode.object
-                (fun get ->
-                  { %s }
-                )""" name properties
-    
-      sprintf "type %s =%s    { %s }%s    %s" name newLine properties twoNewlines decoder
-     
-    let parse json : string =
-        let jObject = JObject.Parse(json)
+    // let private (|IRecord|_|) inferedType =
+    //     match inferedType with
+    //     | InferedType.Record(n, p, o) -> Some(n, p, o)
+    //     | _ -> None
+    //
+    // let rec private collectAllRecords (json: JToken) rootInferedType =
+    //     match rootInferedType with
+    //     | InferedType.Record(_, p, _) as r ->
+    //
+    //         let children =
+    //             p
+    //             |> List.map (fun prop ->
+    //                 match json with
+    //                 | :? JObject as jo ->
+    //                     let propJson = jo.Property(prop.Name).Value
+    //                     collectAllRecords propJson prop.Type
+    //                 | _ -> [])
+    //             |> List.collect id
+    //
+    //         (r, json) :: children
+    //
+    //     | InferedType.Collection(_, types) -> types |> Map.toList |> List.collect (snd >> snd >> collectAllRecords json)
+    //
+    //     | _ -> []
+    //
+    // let propertyIsOfTypeString (parentJson: JToken) propName =
+    //     match parentJson with
+    //     | :? JObject as jo ->
+    //         jo.Property(propName)
+    //         |> Option.ofObj
+    //         |> Option.map (fun jp -> jp.Value.Type = JTokenType.String)
+    //         |> Option.defaultValue false
+    //     | _ -> false
+    //
+    // let private parseProperty (parentJson: JToken) (prop: InferedProperty) =
+    //     let name = pascalCase prop.Name
+    //
+    //     match prop.Type with
+    //     | InferedType.Record(_, _, _) -> (name, name)
+    //     | InferedType.Primitive(t, _, _) -> (name, toSimpleType t)
+    //     | InferedType.Collection(order, _) ->
+    //         order
+    //         |> List.tryHead
+    //         |> Option.map (fun pt ->
+    //             match pt with
+    //             | InferedTypeTag.Record(Some(n)) -> (name, pascalCase n |> sprintf "%s array")
+    //             | InferedTypeTag.Guid -> (name, "Guid array")
+    //             | InferedTypeTag.String -> (name, "string array")
+    //             | _ -> (name, "not supported array"))
+    //         |> Option.defaultValue (name, "obj array")
+    //
+    //     | InferedType.Null when (propertyIsOfTypeString parentJson prop.Name) -> (name, toSimpleType (typeof<string>))
+    //     | _ -> ("not", "supported")
+    //     |> fun (k, v) -> sprintf "%s: %s" k v
+    //
+    // let private parseDecoderOfType parentJson name (ifType: InferedType) =
+    //     let propertyName = pascalCase name
+    //
+    //     match ifType with
+    //     | InferedType.Record(_, _, isOptional) ->
+    //         let staticDecoder = sprintf "%s.Decoder" propertyName
+    //         sprintf "%s = get.%s.Field \"%s\" %s" propertyName (optionalOrRequired isOptional) name staticDecoder
+    //
+    //     | InferedType.Primitive(t, _, opt) ->
+    //         sprintf "%s = get.%s.Field \"%s\" %s" propertyName (optionalOrRequired opt) name (toThothDecoder t)
+    //
+    //     | InferedType.Collection(_, types) ->
+    //         let decoder =
+    //             types
+    //             |> Map.toList
+    //             |> List.tryHead
+    //             |> Option.map (fun (_, (_, ifType)) ->
+    //                 match ifType with
+    //                 | InferedType.Record(Some(n), _, _) -> sprintf "%s.Decoder" (pascalCase n)
+    //                 | InferedType.Primitive(t, _, _) -> toThothDecoder t
+    //                 | _ -> failwith "Not implemented yet")
+    //             |> Option.defaultValue "failWith"
+    //             |> sprintf "(Decode.array %s)"
+    //
+    //
+    //         sprintf "%s = get.Required.Field \"%s\" %s" propertyName name decoder
+    //
+    //     | InferedType.Null when (propertyIsOfTypeString parentJson name) ->
+    //         sprintf "%s = get.Required.Field \"%s\" %s" propertyName name (toThothDecoder typeof<string>)
+    //
+    //     | _ -> "not supported"
+    //
+    // let private parseType name fields (json: JToken) =
+    //     let name = name |> Option.map pascalCase |> Option.defaultValue "Root"
+    //
+    //     let properties =
+    //         fields
+    //         |> List.map (parseProperty json)
+    //         |> String.concat (sprintf "%s      " newLine)
+    //
+    //     let decoder =
+    //         let properties =
+    //             fields
+    //             |> List.map (fun prop -> parseDecoderOfType json prop.Name prop.Type)
+    //             |> String.concat (sprintf "%s                    " newLine)
+    //
+    //         sprintf
+    //             """static member Decoder : Decoder<%s> =
+    //       Decode.object
+    //             (fun get ->
+    //               { %s }
+    //             )"""
+    //             name
+    //             properties
+    //
+    //     sprintf "type %s =%s    { %s }%s    %s" name newLine properties twoNewlines decoder
 
-        JsonValue.Parse(json)
-        |> inferType true (CultureInfo.InvariantCulture) "Root"
-        |> collectAllRecords jObject
-        |> List.map (fun (f,s) ->
-             (function | (IRecord r) -> Some r | _ -> None) f
-             |> Option.map (fun r -> (r,s))
-        )
-        |> List.choose id
-        |> List.rev
-        |> List.map (fun ((n,f,_), j) -> parseType n f j)
-        |> String.concat (twoNewlines)
-        |> sprintf "open System%sopen Thoth.Json%s%s" newLine twoNewlines
+    let stn v = SingleTextNode(v, Range.Zero)
+
+    let idl v =
+        IdentListNode([ IdentifierOrDot.Ident(stn v) ], Range.Zero)
+
+    let getTypeFromJsonValue jsonValue : Type =
+        match jsonValue with
+        | JsonValue.Number v ->
+            if v % 1m = 0m then
+                Type.LongIdent(idl "int")
+            else
+                Type.LongIdent(idl "decimal")
+        | JsonValue.String _ -> Type.LongIdent(idl "string")
+        | _ -> failwith "Not implemented yet"
+
+    let rec processJsonValue jsonValue (callback: ModuleDecl list -> ModuleDecl list) : ModuleDecl list =
+        match jsonValue with
+        | JsonValue.Record properties ->
+            let name =
+                TypeNameNode(None, None, stn "type", None, idl "Root", None, [], None, Some(stn "="), None, Range.Zero)
+
+            let fields =
+                properties
+                |> Seq.map (fun (name, jv) ->
+                    FieldNode(None, None, None, false, None, Some(stn name), getTypeFromJsonValue jv, Range.Zero))
+                |> Seq.toList
+
+            TypeDefnRecordNode(name, None, stn "{", fields, stn "}", [], Range.Zero)
+            |> TypeDefn.Record
+            |> ModuleDecl.TypeDefn
+            |> List.singleton
+            |> callback
+        | _ -> failwith "Not implemented yet"
+
+    let parse json : string =
+        let decls = processJsonValue (JsonValue.Parse(json)) id
+
+        Namespace("Jason.Thoth").isRecursive () {
+            Open("System")
+            Open("Thoth.Json")
+
+            for decl in decls do
+                EscapeHatch(decl)
+        }
+        |> Tree.compile
+        |> CodeFormatter.FormatOakAsync
+        |> Async.RunSynchronously
+
+// let jObject = JObject.Parse(json)
+//
+// JsonValue.Parse(json)
+// |> inferType true (CultureInfo.InvariantCulture) "Root"
+// |> collectAllRecords jObject
+// |> List.map (fun (f, s) ->
+//     (function
+//     | (IRecord r) -> Some r
+//     | _ -> None)
+//         f
+//     |> Option.map (fun r -> (r, s)))
+// |> List.choose id
+// |> List.rev
+// |> List.map (fun ((n, f, _), j) -> parseType n f j)
+// |> String.concat (twoNewlines)
+// |> sprintf "open System%sopen Thoth.Json%s%s" newLine twoNewlines
